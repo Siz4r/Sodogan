@@ -30,6 +30,7 @@ public class KeyHandler implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
+        System.out.println("cze");
         switch (e.getKeyCode()) {
             case KeyEvent.VK_A -> leftPressed = true;
             case KeyEvent.VK_D -> rightPressed = true;
@@ -41,25 +42,23 @@ public class KeyHandler implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        System.out.println("cze");
         switch (e.getKeyCode()) {
             case KeyEvent.VK_A -> leftPressed = true;
             case KeyEvent.VK_D -> rightPressed = true;
             case KeyEvent.VK_S -> downPressed = true;
             case KeyEvent.VK_W -> upPressed = true;
         }
-
-        //        keysStatus.put(e.getKeyCode(), true);
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
+        System.out.println("cze");
         switch (e.getKeyCode()) {
             case KeyEvent.VK_A -> leftPressed = false;
             case KeyEvent.VK_D -> rightPressed = false;
             case KeyEvent.VK_S -> downPressed = false;
             case KeyEvent.VK_W -> upPressed = false;
         }
-
-        //        keysStatus.put(e.getKeyCode(), false);
     }
 }

@@ -3,74 +3,79 @@ package entity;
 import main.GamePanel;
 import main.KeyHandler;
 
-import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.Objects;
+import java.awt.image.BufferedImage;
 
 public class Player extends Entity implements Drawable, Moveable {
+    Action upAction;
     GamePanel gp;
     KeyHandler keyHandler;
 
+    public final int screenX;
+    public final int screenY;
+
     public Player(GamePanel gp, KeyHandler keyHandler) {
+        super(gp.tileSize * 23, gp.tileSize * 23, 7);
         this.gp = gp;
         this.keyHandler = keyHandler;
-        setDefaultValues();
+        this.screenX = gp.screenWidth / 2 - gp.tileSize / 2;
+        this.screenY = gp.screenHeight / 2 - gp.tileSize / 2;
+        this.getInputMap().put(KeyStroke.getKeyStroke("W"), "upAction");
+        this.getActionMap().put("upAction",upAction);
+        this.solidArea = new Rectangle(8, 20, 24, 24);
     }
 
-    public void setDefaultValues() {
-        this.x = 100;
-        this.y = 100;
-        this.speed = 4;
-    }
 
-    public void loadPlayerSprites() {
-        try {
-            File resDir = getFileFromURL();
-
-            if (resDir.exists() && resDir.isDirectory()) {
-
-            }
-        } catch (IOException e) {
-
-        } catch (URISyntaxException e) {
-        }
-    }
-
-    private File getFileFromURL() {
-        URL url = this.getClass().getClassLoader().getResource("/sql");
-        File file = null;
-        try {
-            file = new File(url.toURI());
-        } catch (URISyntaxException e) {
-            file = new File(url.getPath());
-        } finally {
-            return file;
-        }
-    }
 
     @Override
     public void update() {
         if (keyHandler.upPressed) {
-            System.out.println("cze");
-            this.y -= this.speed;
+            this.worldY -= this.speed;
+            this.direction = "up";
         } else if (keyHandler.downPressed) {
-            this.y += this.speed;
+            this.worldY += this.speed;
+            this.direction = "down";
         } else if (keyHandler.leftPressed) {
-            this.x -= this.speed;
+            this.worldX -= this.speed;
+            this.direction = "left";
         } else if (keyHandler.rightPressed){
-            this.x += this.speed;
+            this.worldX += this.speed;
+            this.direction = "right";
         }
 
+        collisionOn = false;
+        gp.collisionChecker.checkTile(this);
+
+        this.spriteCounter++;
+        if (spriteCounter > 15) {
+            spriteNum = spriteNum == 1 ? 2 : 1;
+            spriteCounter = 0;
+        }
     }
 
     @Override
     public void draw(Graphics2D g2) {
-        g2.setColor(Color.white);
-        g2.fillRect(this.x, this.y, gp.tileSize, gp.tileSize);
+        BufferedImage sprite = switch (direction) {
+            case "up" -> {
+                if (spriteNum == 1) yield sprites.get(SpritesKeys.UP_2);
+                yield sprites.get(SpritesKeys.UP_1);
+            }
+            case "down" -> {
+                if (spriteNum == 1) yield sprites.get(SpritesKeys.DOWN_2);
+                yield sprites.get(SpritesKeys.DOWN_1);
+            }
+            case "right" -> {
+                if (spriteNum == 1) yield sprites.get(SpritesKeys.RIGHT_2);
+                yield sprites.get(SpritesKeys.RIGHT_1);
+            }
+            case "left" -> {
+                if (spriteNum == 1) yield sprites.get(SpritesKeys.LEFT_2);
+                yield sprites.get(SpritesKeys.LEFT_1);
+            }
+            default -> null;
+        };
+
+        g2.drawImage(sprite, screenX, screenY, gp.tileSize, gp.tileSize, null);
     }
 }
